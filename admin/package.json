@@ -1,0 +1,17 @@
+{
+  "name": "blockvote",
+  "description": "Blockchain based voting",
+  "authors": "blockvote@d10r.net",
+  "version": "0.0.1",
+  "main": "main.js",
+  "dependencies": {
+    "async": "^2.1.2",
+    "keythereum": "^0.2.6",
+    "promise": "^7.1.1",
+    "wait.for-es6": "^0.1.0",
+    "web3": "^0.14"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1"
+  }
+}

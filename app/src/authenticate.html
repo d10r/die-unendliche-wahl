@@ -1,0 +1,51 @@
+<template>
+  <div id="loader" class="${loaderHidden ? 'disabled selected hidden' : ''}">
+    <i class="fa fa-spin fa-spinner"></i>
+  </div>
+
+    <div class="container-fluid page-default">
+    <div class="row">
+      <p class="intro">Der erste Schritt ist die Authentifizierung bei einem elektronischen Wählerregister.<br>
+        Da es ein solches noch nicht gibt, erfolgt hier nur eine grafische Simulation.<br>
+        <br>
+        Dise Funktion könnte zum Beispiel mithilfe der <a href="https://www.buergerkarte.at/" target="_blank">Bürgerkarte</a> realisiert werden.
+      </p>
+      </div>
+      </div>
+
+
+  <div class="container-fluid">
+    <div class="row">
+
+      <div class="well col-md-offset-3 col-md-6">
+          <i class="fa fa-info-circle" aria-hidden="true"></i>
+          Dies ist nur eine funktionslose Simulation (siehe Text oben).<br>
+        Die eingegebenen Daten werden ignoriert und auch nirgendwohin gesendet.<br>
+        <br>
+        In einer echten Implementierung würde der Wähler an dieser Stelle authentifiziert, anschließend würde ein vom Browser zufällig erzeugtes Token vom elektronischen Wählerregister mit einer Blindsignatur versehen.<br>
+        Siehe <a href="dist/e-voting_schon-wieder.pdf" target="_blank">Beschreibung</a> für weitergehende Informationen.
+      </div>
+
+    </div>
+    <div class="row">
+      <div class="well col-md-offset-3 col-md-6">
+          <h1>Authentifizierung</h1>
+          <form class="form">
+            <div class="form-group">
+              <label>Benutzername</label>
+              <input type="text" value="Demo-Benutzername" class="form-control"/>
+            </div>
+
+            <div class="form-group">
+              <label>Passwort</label>
+              <input type="password" value="Demo-Passwort" class="form-control"/>
+            </div>
+
+            <div class="form-actions">
+              <a class="btn btn-primary btn-lg" click.trigger="ok()">Anmelden</a>
+            </div>
+          </form>
+      </div>
+    </div>
+  </div>
+</template>

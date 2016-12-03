@@ -1,0 +1,12 @@
+<template>
+  <require from="nav-bar.html"></require>
+  <require from="vote-bar.html"></require>
+  <require from="bootstrap/css/bootstrap.css"></require>
+
+  <!-- <nav-bar router.bind="router"></nav-bar> -->
+  <vote-bar router.bind="router"></vote-bar>
+
+  <div class="page-host">
+    <router-view></router-view>
+  </div>
+</template>

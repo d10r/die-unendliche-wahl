@@ -1,0 +1,15 @@
+# create keys
+
+# get private key
+openssl genrsa -out private.pem 2048
+
+# get public key
+openssl rsa -in private.pem -outform PEM -pubout -out public.pem
+
+# decrypt ciphertext
+openssl rsautl -decrypt -oaep -inkey private.pem -in ciphertext -out cleartext
+
+# It's save to encrypt just '1' or '2', because the padding is generated randomly
+# This public key can be used with the Web Crypto API: http://stackoverflow.com/questions/34814480/how-to-load-a-public-key-in-pem-format-for-encryption
+
+# Whenever a new key is generated, the public key in app/src/crypto.js needs to be updated

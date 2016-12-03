@@ -1,0 +1,10 @@
+<template bindable="router">
+  <div class="nav-vote">
+    <ol>
+      <li class="${router.currentInstruction.config.name == 'start' ? 'active' : ''}" >Willkommen</li>
+      <li class="${router.currentInstruction.config.name == 'authenticate' ? 'active' : ''}">Anmelden</li>
+      <li class="${router.currentInstruction.config.name == 'vote' ? 'active' : ''}">Wählen</li>
+      <li class="${router.currentInstruction.config.name == 'result' ? 'active' : ''}">Ergebnis</li>
+    </ol>
+  </div>
+</template>

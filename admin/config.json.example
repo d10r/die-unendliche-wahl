@@ -1,0 +1,9 @@
+{
+  "ethereum": {
+    "rpc": "http://localhost:2017"
+  },
+  "gasDistributor": {
+    "interface": "::",
+    "port": 8599
+  }
+}

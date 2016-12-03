@@ -1,0 +1,54 @@
+<template>
+    <div class="container-fluid page-result-notready ${logic.electionStatus == 1 || logic.electionStatus == 2 ? '' : 'disabled selected hidden'}">
+        <div class="container-fluid page-default">
+            <div class="row">
+                <h1>Laufende Wahl...</h1>
+                <p class="intro">Aktuell ist das virtuelle Wahllokale geöffnet, deshalb gibt es noch kein Endergebnis.<br>
+                    Abgegebene Stimmen sind verschlüsselt, um eine vorzeitige Auszählung unmöglich zu machen.<br>
+                    Eingehende Stimmen können aber in (fast) Echtzeit beobachtet werden.<br>
+                    <br>
+                    Sobald der aktuelle Wahlgang zu Ende ist, wird hier das Ergebnis angezeigt.
+                </p>
+                <small>Geheimtipp: Um das (fast) Live-Update zu testen, einfach in einem neuen Fenster <a href="#vote" target="_blank"> nochmal abstimmen</a></small>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-offset-3 col-md-6">
+                <a class="btn hidden" click.trigger="testPopulateList(20)">Testen</a>
+                <a class="btn hidden" click.trigger="scrollTop()">Scroll</a>
+                <div id="live-votes" class="scrollable">
+                    <ul class="list-group">
+                        <li class="list-group-item" repeat.for="row of rows">
+                            <span class="${row.myVote ? 'my-vote' : ''}">neue Stimme in Block <a href="${row.chainExplorer}/block/${row.blockNr}" target="_blank">${row.blockNr}</a>
+                            - Transaktion <a href="${row.chainExplorer}/tx/${row.tx}" target="_blank">${row.tx}</a>
+                            | Stimmen gesamt: ${row.nrVotes}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid page-default ${logic.electionStatus == 3 ? '' : 'disabled selected hidden'}">
+        <div class="row">
+            <h1>Wahlergebnis</h1>
+            <div class="col-md-offset-4 col-md-4">
+
+                <!--<a class="btn btn-primary" click.trigger="createResultChart()">Testen</a>-->
+
+                <div id="canvas-holder">
+                    <canvas id="chart-area" />
+                </div>
+           </div>
+
+        </div>
+        <p class="intro">Nicht zufrieden mit dem Ergebnis?<br>
+            Der nächste Durchgang startet bald :-)</p>
+    </div>
+    <div class="container-fluid page-default">
+    <a href="#start">Zurück auf Start</a> | <a href="dist/e-voting_schon-wieder.pdf">Mehr erfahren</a> | <a href="https://github.com/d10r/die-unendliche-wahl/">Quellcode</a> | <a href="mailto:die-unendliche-wahl@d10r.net">Kontakt</a>
+    </div>
+
+</template>

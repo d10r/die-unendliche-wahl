@@ -1,0 +1,59 @@
+<template>
+  <div class="container-fluid page-vote">
+
+    <div class="row">
+      <div class="col-md-offset-3 col-md-6 text-center">
+        <h1>
+          Amtlicher Stimmzettel<br/>
+          <small>für die</small><br/>
+          Wahl des Bundespräsidenten<br/>
+          <small>am 4. Dezember 2016</small>
+        </h1>
+
+        <table class="table table-bordered">
+          <tr>
+            <th class="candidate-header">Vorname und Familienname des Wahlwerbers</th>
+            <th class="vote-header">Für gewählten Wahlwerber im Kreis ein<br/><i class="fa fa-times"></i><br/> einsetzen</th>
+          </tr>
+          <tr>
+            <td class="candidate">Ing. Norbert Hofer</td>
+            <td class="vote" click.trigger="setVote('0')">
+              <i class="fa ${vote == '0' ? 'fa-times-circle-o' : 'fa-circle-o'}"></i>
+            </td>
+          </tr>
+          <tr>
+            <td class="candidate">Dr. Alexander van der Bellen</td>
+            <td class="vote" click.trigger="setVote('1')">
+              <i class="fa ${vote == '1' ? 'fa-times-circle-o' : 'fa-circle-o'}"></i>
+            </td>
+          </tr>
+        </table>
+
+        <span class="text-warning ${logic.electionStatus == 1 ? 'hidden' : ''}">Derzeit ist das virtuelle Wahllokal geschlossen<br>
+          In Kürze findet der nächste Durchgang statt</span>
+
+        <span class="text-warning ${logic.electionStatus == 1 && logic.accountFunded == false ? '' : 'hidden'}">Das zur Stimmabgabe nötige <a href="https://www.ethereum.org/ether" target="_blank">Ether</a> (Crypto-Geld) ist noch nicht eingetroffen.
+          <br>Bitte noch etwas Geduld...<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+<span class="sr-only"></span></span>
+
+        <a class="btn btn-primary btn-lg ${logic.electionStatus != 1 || ! logic.accountFunded ? 'hidden' : ''}" click.trigger="castVote()"><i class="fa fa-envelope" aria-hidden="true"></i> Stimme abgeben</a>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="whiteVoteModal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Stimmzettel weiß abgeben?</h4>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Abbrechen</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" click.trigger="castVoteConfirmed()">Bestätigen</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+</template>
