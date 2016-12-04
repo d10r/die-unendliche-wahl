@@ -12,7 +12,7 @@ jspm install
 echo
 echo "all done"
 
-if [[ -f config/config.json ]]; then
+if [[ ! -f config/config.json ]]; then
 	echo
 	echo "!!!"
 	echo "Finally, you need to create a config file in"

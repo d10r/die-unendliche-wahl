@@ -68,7 +68,7 @@ contract Election {
         nrVotes = 0;
         result = "";
         privateKey = "";
-    }t
+    }
 
     function startElection() preVoting {
         currentStage = Stage.VOTING;
