@@ -34,14 +34,14 @@ exports.run = (ctx) => {
         console.log('processing result...')
 
         ctx.electionResult = {}
-        let decryptPromises = []
+        var decryptPromises = []
 
         // always returns 0 for unknown reason, thus ignored
-        let nrVotes = ctx.contract.instance.votes.length
+        var nrVotes = ctx.contract.instance.votes.length
         console.log('nr votes: ' + nrVotes)
         for(var i=0; true; i++) {
             try {
-                let v = ctx.contract.instance.votes(i)
+                var v = ctx.contract.instance.votes(i)
                 console.log(`fetched vote ${i}`)
                 //console.log(i + ': ' + v[2])
 
@@ -60,7 +60,7 @@ exports.run = (ctx) => {
 
         console.log('waiting for decryption to finish...')
         Promise.all(decryptPromises).then( () => {
-            let resultStr = JSON.stringify(ctx.electionResult)
+            var resultStr = JSON.stringify(ctx.electionResult)
             console.log('all done. Result: ' + resultStr)
 
             if(resultStr)
@@ -70,7 +70,7 @@ exports.run = (ctx) => {
 
     function publishResult(result) {
         console.log('publishing...')
-        let privKey = fs.readFileSync(privKeyFile).toString()
+        var privKey = fs.readFileSync(privKeyFile).toString()
         ctx.contract.instance.publishResult(result, privKey, {gas: 2000000}) // quite expensive
         console.log('done')
     }
@@ -81,7 +81,7 @@ exports.run = (ctx) => {
             var buf = Buffer.from(encVote, 'base64')
             fs.writeFileSync(encFilename, buf)
 
-            let decryptCmd =  `openssl rsautl -decrypt -oaep -inkey ${privKeyFile} -in ${encFilename}`
+            var decryptCmd =  `openssl rsautl -decrypt -oaep -inkey ${privKeyFile} -in ${encFilename}`
             exec(decryptCmd, (error, stdout, stderr) => {
                 fs.unlink(encFilename)
                 if(error) {
@@ -90,7 +90,7 @@ exports.run = (ctx) => {
                     //return
                 }
 
-                let candidateName = stdout
+                var candidateName = stdout
                 console.log(`decrypted vote ${id}: ${candidateName}`)
 
                 if(! ctx.electionResult[candidateName])

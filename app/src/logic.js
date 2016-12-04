@@ -304,19 +304,13 @@ export class Logic {
     // It may take a while (~20 seconds) for the funds to become available. That delay needs to be handled in UI
     // TODO: persist txhash somewhere, e.g. in appstate?
     // TODO: check if we can switch to fetch api
-    refuelTxHash = null
     fundAccount(address) {
         $.ajax(this.config.getAll().refuelBaseUrl + address)
             .done((data, textStatus, jqXHR) => {
                 console.log('refuel request done: ' + JSON.stringify(data))
-                this.refuelTxHash = data.txHash
-                console.log(this.refuelTxHash)
             })
             .fail((jqXHR, textStatus, errorThrown) => {
                 console.log('refuel request fail: ' + textStatus + ' - ' + errorThrown)
             })
-
-        // 100000000000000000
-        // 10001000000000000
     }
 }
