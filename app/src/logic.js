@@ -120,6 +120,17 @@ export class Logic {
     }
     */
 
+    getLastElectionResult() {
+        this.Election.lastResult((err, ret) => {
+            if(! err) {
+                if(ret != '') {
+                    console.log('lastResult available: ' + ret)
+                    this.setElectionResult(ret)
+                }
+            }
+        })
+    }
+
     electionStatusObservers = new Set()
     watchElectionStatus() {
         // TODO: this should use an Ethereum event instead of polling
@@ -132,7 +143,7 @@ export class Logic {
                         this.electionStatus = newStatus
 
                         if(this.electionStatus == 3) {
-                           this.setElectionResult()
+                           this.getLastElectionResult()
                         }
 
                         /*
@@ -146,30 +157,27 @@ export class Logic {
             })
         }
 
-        update()
+        this.getLastElectionResult() // shows the result of the last round (if any)
+        update() // updates the result if the current round ends
     }
 
-    setElectionResult() {
-        this.Election.result((err, ret) => {
-            if (!err) {
-                console.log('got election result: ' + ret)
+    electionResult = null
+    setElectionResult(resultString) {
+        try {
+            var newResult = JSON.parse(resultString)
+        } catch(e) {
+            console.error('parsing election result failed with: ' + e)
+            return
+        }
+        if(! newResult['hofer']) {
+            newResult['hofer'] = 0
+        }
+        if(! newResult['vdb']) {
+            newResult['vdb'] = 0
+        }
 
-                try {
-                    this.electionResult = JSON.parse(ret)
-                } catch(e) {
-                    console.error('parsing election result failed with: ' + e)
-                    return
-                }
-                if(! this.electionResult['hofer']) {
-                    this.electionResult['hofer'] = 0
-                }
-                if(! this.electionResult['vdb']) {
-                    this.electionResult['vdb'] = 0
-                }
-
-                this.electionResultReady() // triggers promise resolution
-            }
-        })
+        this.electionResult = newResult
+        this.electionResultReady() // triggers promise resolution
     }
 
     // expects a function without params as parameter

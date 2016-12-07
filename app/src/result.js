@@ -11,6 +11,7 @@ export class Processing {
         this.appState = appState
         this.logic = logic
         this.config = config
+        this.chainExplorer = this.config.getAll().ethereum.chainExplorer
 
         if (! this.appState.isTokenSet()) {
             console.log('token not set, need auth')
@@ -23,6 +24,7 @@ export class Processing {
 
         this.listenForVotes()
         this.waitForResult()
+        window.result = this
     }
 
 
@@ -49,9 +51,8 @@ export class Processing {
     }
 
     renderVoteEvent = (voteEvent) => {
-        let chainExplorer = this.config.getAll().ethereum.chainExplorer
         let row = {
-            chainExplorer: chainExplorer,
+            chainExplorer: this.chainExplorer,
             blockNr: voteEvent.blockNumber,
             tx: voteEvent.transactionHash,
             myVote: this.logic.myVoteTxHash == voteEvent.transactionHash,
@@ -67,9 +68,8 @@ export class Processing {
 
     testPopulateList(nrItems) {
         for(let i = 0; i < nrItems; i++) {
-            let chainExplorer = this.config.getAll().ethereum.chainExplorer
             let row = {
-                chainExplorer: chainExplorer,
+                chainExplorer: this.chainExplorer,
                 blockNr: 22,
                 tx: '0x538a60fe906c385c8944cdd3ed7398e6f18b418118937395031c5aae3dd2bae2 ',
                 nrVotes: 33

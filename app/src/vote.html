@@ -37,7 +37,7 @@
 
 <span class="sr-only"></span></span>
 
-        <a class="btn btn-primary btn-lg ${logic.electionStatus != 1 || ! logic.accountFunded ? 'hidden' : ''}" click.trigger="castVote()"><i class="fa fa-envelope" aria-hidden="true"></i> Stimme abgeben</a>
+        <a id="btn-vote" class="btn btn-primary ${logic.electionStatus != 1 || ! logic.accountFunded ? 'hidden' : ''}" click.trigger="castVote()"><i class="fa fa-envelope" aria-hidden="true"></i> Stimme abgeben</a>
       </div>
     </div>
   </div>

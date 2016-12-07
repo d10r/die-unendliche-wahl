@@ -47,7 +47,7 @@ contract Election {
     Vote[] public votes;
     uint public nrVotes = 0;
 
-    string public result = "";
+    string public lastResult = "";
     string public privateKey = "";
 
 // ############## PUBLIC FUNCTIONS ##############
@@ -60,22 +60,17 @@ contract Election {
         name = _name;
     }
 
-    // TODO: for unknown reasons, thus doesn't work.
     // https://youtu.be/kTlLX9jMjwk
-    function resetElection() requiresAdmin {
+    function reset() requiresAdmin {
         currentStage = Stage.PRE_VOTING;
         votes.length = 0;
         nrVotes = 0;
-        result = "";
+        lastResult = "";
         privateKey = "";
     }
 
-    function startElection() preVoting {
+    function startElection() requiresAdmin preVoting {
         currentStage = Stage.VOTING;
-    }
-
-    function stopElection() voting {
-        currentStage = Stage.PROCESSING;
     }
     
     function vote(string _token, string _candidate) returns(uint) {
@@ -99,12 +94,22 @@ contract Election {
         return nrVotes;
     }
 
+    function stopElection() requiresAdmin voting {
+        currentStage = Stage.PROCESSING;
+    }
+
     function publishResult(string _result, string _privateKey) requiresAdmin {
-        result = _result;
+        lastResult = _result;
         privateKey = _privateKey;
 
         resultPublished(_result);
         currentStage = Stage.RESULT;
+    }
+
+    function startNewRound() requiresAdmin {
+        currentStage = Stage.VOTING;
+        votes.length = 0;
+        nrVotes = 0;
     }
 
 // ############## MODIFIERS ##############

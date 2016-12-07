@@ -25,8 +25,13 @@ exports.run = (ctx) => {
         console.log('election stopped' + ' - ' + ret)
     }
 
+    if(ctx.startNewRound) {
+        var ret = ctx.contract.instance.startNewRound({gas: 2000000})
+        console.log('new round started' + ' - ' + ret)
+    }
+
     if(ctx.reset) {
-        var ret = ctx.contract.instance.resetElection()
+        var ret = ctx.contract.instance.reset({gas: 2000000})
         console.log('election reset' + ' - ' + ret)
     }
 

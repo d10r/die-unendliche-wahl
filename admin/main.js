@@ -68,6 +68,7 @@ function usageExit() {
     console.log('\t\t\t startElection')
     console.log('\t\t\t stopElection')
     console.log('\t\t\t processResult')
+    console.log('\t\t\t startNewRound')
     process.exit(1)
 }
 
@@ -105,6 +106,8 @@ function parseCmdline() {
                 context.stopElection = true
             } else if(configCmd == 'processResult') {
                 context.processResult = true
+            } else if(configCmd == 'startNewRound') {
+                context.startNewRound = true
             } else if(configCmd == 'reset') {
                 context.reset = true
             } else if(configCmd == 'test') {
