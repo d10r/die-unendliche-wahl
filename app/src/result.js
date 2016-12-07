@@ -35,7 +35,13 @@ export class Processing {
         }
     }
 
+    // TODO: this is fucked up. Current and future results shouldn't require different handing. Needs debug
     waitForResult() {
+        if(this.logic.electionResult) {
+            this.createResultChart(this.logic.electionResult)
+        }
+
+        // react on changes
         this.logic.getElectionResultPromise().then( () => {
             this.createResultChart(this.logic.electionResult)
         })
