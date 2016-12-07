@@ -78,20 +78,26 @@ contract Election {
         if(alreadyVoted(_token)) { error(2); return 2; } // ALREADY_VOTED
         if(! isTokenValid(_token)) { error(3); return 3; } // INVALID_TOKEN
 
-        // check vote validity
-
-        votes.push(Vote({
+        // why? see http://ethereum.stackexchange.com/questions/3373/how-to-clear-large-arrays-without-blowing-the-gas-limit/3377
+        if(nrVotes == votes.length) {
+            votes.length += 1;
+        }
+        votes[nrVotes++] = Vote({
             addr: msg.sender,
             token: _token,
             candidate: _candidate
-        }));
-        nrVotes++;
+        });
+
         voteEvent(_token, nrVotes);
         return 0;
     }
 
     function getNrVotes() returns(uint) {
         return nrVotes;
+    }
+
+    function getElectionStatus() returns(uint) {
+        return uint(currentStage);
     }
 
     function stopElection() requiresAdmin voting {
@@ -108,7 +114,7 @@ contract Election {
 
     function startNewRound() requiresAdmin {
         currentStage = Stage.VOTING;
-        votes.length = 0;
+        // votes.length = 0; // disabled because it easily runs out of gas
         nrVotes = 0;
     }
 
@@ -139,7 +145,7 @@ modifier postVoting {
 // ############## PRIVATE FUNCTIONS ##############
 
     function alreadyVoted(string _token) returns(bool) {
-        for(var i=0; i<votes.length; i++) {
+        for(var i=0; i<nrVotes; i++) {
             if(compareStrings(votes[i].token, _token) == 0) {
                 return true;
             }

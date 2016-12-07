@@ -25,13 +25,17 @@ exports.run = (ctx) => {
         console.log('election stopped' + ' - ' + ret)
     }
 
+    // this call seems to be quite expensive and tends to run out of gas, see
+    // https://testnet.etherscan.io/tx/0xf25653abc06c86bf49221cb8f7f155e59a6d95c5f7c489bb87ad9adf851f8599
+    // TODO: check how this relates to the size of vote array and how to fix
+    // TODO: make sure the block gas limit isn't exceeded
     if(ctx.startNewRound) {
-        var ret = ctx.contract.instance.startNewRound({gas: 2000000})
+        var ret = ctx.contract.instance.startNewRound({gas: 4000000})
         console.log('new round started' + ' - ' + ret)
     }
 
     if(ctx.reset) {
-        var ret = ctx.contract.instance.reset({gas: 2000000})
+        var ret = ctx.contract.instance.reset({gas: 4000000})
         console.log('election reset' + ' - ' + ret)
     }
 
@@ -41,10 +45,9 @@ exports.run = (ctx) => {
         ctx.electionResult = {}
         var decryptPromises = []
 
-        // always returns 0 for unknown reason, thus ignored
-        var nrVotes = ctx.contract.instance.votes.length
+        var nrVotes = ctx.web3.toDecimal(ctx.contract.instance.nrVotes())
         console.log('nr votes: ' + nrVotes)
-        for(var i=0; true; i++) {
+        for(var i=0; nrVotes; i++) {
             try {
                 var v = ctx.contract.instance.votes(i)
                 console.log(`fetched vote ${i}`)
@@ -52,7 +55,7 @@ exports.run = (ctx) => {
 
                 decryptPromises.push(decryptPromise(i, v[2]))
             } catch(e) {
-                // workaround because of unknown length: iterate until it fails
+                // TODO: this was a workaround because of unknown length: iterate until it fails. Shouldn't be needed anymore
                 // TODO: distinguish between end of array and other errors
                 //console.error(e)
                 console.log(`end reached after ${i} iterations`)

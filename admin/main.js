@@ -73,6 +73,10 @@ function usageExit() {
 }
 
 function parseCmdline() {
+    if(process.argv.indexOf('--help') != -1) {
+        usageExit()
+    }
+
     if(process.argv.indexOf('--compile') != -1) {
         var solFileIndex = process.argv.indexOf('--compile') + 1
         if(! process.argv[solFileIndex] || ! process.argv[solFileIndex].endsWith('.sol')) {
