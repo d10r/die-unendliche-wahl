@@ -30,12 +30,12 @@ exports.run = (ctx) => {
     // TODO: check how this relates to the size of vote array and how to fix
     // TODO: make sure the block gas limit isn't exceeded
     if(ctx.startNewRound) {
-        var ret = ctx.contract.instance.startNewRound({gas: 4000000})
+        var ret = ctx.contract.instance.startNewRound({gas: 2000000})
         console.log('new round started' + ' - ' + ret)
     }
 
     if(ctx.reset) {
-        var ret = ctx.contract.instance.reset({gas: 4000000})
+        var ret = ctx.contract.instance.reset({gas: 2000000})
         console.log('election reset' + ' - ' + ret)
     }
 
