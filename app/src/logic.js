@@ -39,14 +39,6 @@ export class Logic {
         window.tx = Tx
     }
 
-    testCrypto() {
-        this.crypto.encryptionPromise('hallo').then( (cipheredData) => {
-            var cipheredValue = this.crypto.arrayBufferToBase64String(cipheredData);
-            console.log('data: ' + cipheredData)
-            console.log('value: ' + cipheredValue)
-        })
-    }
-
     initEth() {
         // getAll() is a workaround to get() currently supporting only 2 levels, see https://github.com/Vheissu/aurelia-configuration/issues/68
         let rpcAddr = this.config.getAll().ethereum.rpc
@@ -63,11 +55,12 @@ export class Logic {
         })
 
         this.wallet = Wallet.generate()
-        this.electionResultPromise = this.getElectionResultPromise()
+        this.electionResultPromise = new Promise( (resolve, reject) => {
+            this.electionResultReady = resolve // will be triggered from outside
+        })
     }
 
     createAndFundAccount() {
-        //debugger
         let addr = this.wallet.getAddressString()
         console.log('new addr: ' + addr)
         this.web3.eth.defaultAccount = addr
@@ -110,55 +103,50 @@ export class Logic {
         console.log('instance addr: ' + this.contracts.address)
     }
 
-    /*
-    accountIsFunded() {
-        let balance = this.web3.toDecimal(this.web3.eth.getBalance(this.web3.eth.defaultAccount))
-        if(balance > 0)
-            return true
-        else
-            return false
-    }
-    */
+    watchElectionStatus() {
+        this.electionStatusPromise = new Promise( (resolve, reject) => {
+            this.electionStatusReady = resolve
+        })
+        // get current round and status
+        this.Election.getCurrentElectionRoundAndStatus.call( (err, ret) => {
+            if (! err) {
+                console.log(`current election status ${ret[1]}, round: ${ret[0]}`)
+                this.electionRound = this.web3.toDecimal(ret[0])
+                this.electionStatus = this.web3.toDecimal(ret[1])
+                this.electionStatusReady() // resolve promise
 
-    getLastElectionResult() {
-        this.Election.lastResult((err, ret) => {
-            if(! err) {
-                if(ret != '') {
-                    console.log('lastResult available: ' + ret)
-                    this.setElectionResult(ret)
-                }
+                let statusEvent = this.Election.electionStatusEvent()
+                statusEvent.watch( (err, ret) => {
+                    if (! err) {
+                        let prevElectionRound = this.electionRound
+                        this.electionRound = this.web3.toDecimal(ret.args._currentRound)
+                        this.electionStatus = this.web3.toDecimal(ret.args._status)
+                        console.log(`new election status: ${this.electionStatus} - round ${this.electionRound}`)
+
+                        if(prevElectionRound != this.electionRound) {
+                            this.watchElectionResult(this.electionRound-1)
+                        }
+                    }
+                })
+
+                this.watchElectionResult(this.electionRound-1)
             }
         })
     }
 
-    electionStatusObservers = new Set()
-    watchElectionStatus() {
-        // TODO: this should use an Ethereum event instead of polling
-        let update = () => {
-            this.Election.currentStage((err, ret) => {
-                if (!err) {
-                    let newStatus = this.web3.toDecimal(ret)
-                    if(this.electionStatus != newStatus) {
-                        console.log(`new election status: ${newStatus} (${this.electionStageToString(newStatus)})`)
-                        this.electionStatus = newStatus
+    currentElectionResultWatcher = null
+    watchElectionResult(round) {
+        if(this.currentElectionResultWatcher)
+            this.currentElectionResultWatcher.stopWatching()
 
-                        if(this.electionStatus == 3) {
-                           this.getLastElectionResult()
-                        }
-
-                        /*
-                        for(let observer of this.electionStatusObservers) {
-                            observer()
-                        }
-                        */
-                    }
-                }
-                setTimeout(update, 10000)
-            })
-        }
-
-        this.getLastElectionResult() // shows the result of the last round (if any)
-        update() // updates the result if the current round ends
+        let resultEvent = this.Election.resultPublishedEvent( { _currentRound: round }, { fromBlock: 0 } )
+        resultEvent.watch( (err, ret) => {
+            if(! err) {
+                console.log(`new election result: ${ret.args._result}`)
+                this.setElectionResult(ret.args._result)
+            }
+        })
+        this.currentElectionResultWatcher = resultEvent
     }
 
     electionResult = null
@@ -180,15 +168,6 @@ export class Logic {
         this.electionResultReady() // triggers promise resolution
     }
 
-    // expects a function without params as parameter
-    addElectionStatusObserver(observer) {
-        this.electionStatusObservers.add(observer)
-    }
-
-    removeElectionStatusObserver(observer) {
-        this.electionStatusObservers.delete(observer)
-    }
-
     electionStageToString(stage) {
         switch(stage) {
             case 0: return 'not yet started'
@@ -198,14 +177,14 @@ export class Logic {
         }
     }
 
-    watchErrors() {
+    watchEthErrors() {
         this.errEvent = this.Election.error()
         this.errEvent.watch( (err, result) => {
             console.log('#err# err: ' + JSON.stringify(err) + ' - result: ' + JSON.stringify(result))
         })
     }
 
-    watchLog() {
+    watchEthLog() {
         this.logEvent = this.Election.error()
         this.logEvent.watch( (err, result) => {
             console.log('#log# err: ' + err + ' - result: ' + result)
@@ -239,8 +218,8 @@ export class Logic {
 
     txNonce = 0 // needs to be incremented for consecutive transactions
     castVote(encryptedVote) {
-        this.watchErrors()
-        this.watchLog()
+        this.watchEthErrors()
+        this.watchEthLog()
 
         //this.Election.vote(this.getRandomToken(), encryptedVote) // that would be too easy :-)
         // we need to manually handle the transaction creation and signing process
@@ -270,41 +249,21 @@ export class Logic {
         })
     }
 
-    votes = []
     watchVotes(callback) {
-        this.voteEvent = this.Election.voteEvent()
-        this.voteEvent.watch( (err, result) => {
-            if(err) {
-                console.log('### voteEvent: ' + JSON.stringify(err))
-            }
-            if(result) {
-                let resultStr = JSON.stringify(result)
-                console.log('*** voteEvent: ' + JSON.stringify(resultStr))
-                this.votes.push(result)
-                callback(result)
-            }
-        })
-    }
-
-    getStructuredVote(v) {
-        let chainExplorer = this.config.getAll().ethereum.chainExplorer
-        let row = {
-            chainExplorer: chainExplorer,
-            blockNr: event.blockNumber,
-            tx: event.transactionHash,
-            nrVotes: event.args['']
-        }
-
-        // let eventStr = `neue Stimme: Block ${event.blockNumber} - Transaktion ${event.transactionHash}`
-        //let eventStr = `neue Stimme | Block <a href="${chainExplorer}/block/${event.blockNumber}">${event.blockNumber}</a> - Transaktion: ${event.transactionHash} - Gesamtstimmen: ${event.args['']}`
-        //this.rows.push( { msg: eventStr } )
-        this.rows.push(row)
-        this.scrollTop()
-    }
-
-    getElectionResultPromise() {
-        return new Promise( (resolve, reject) => {
-            this.electionResultReady = resolve // will be triggered from outside
+        this.electionStatusPromise.then( () => {
+            console.log('watching votes for round ' + this.electionRound)
+            // will get all votes for the current round. fromBlock: 0 makes sure those from the past are included
+            this.voteEvent = this.Election.voteEvent({_currentRound: this.electionRound}, {fromBlock: 0})
+            this.voteEvent.watch((err, result) => {
+                if (err) {
+                    console.log('### voteEvent: ' + JSON.stringify(err))
+                }
+                if (result) {
+                    let resultStr = JSON.stringify(result)
+                    console.log(`*** voteEvent: round ${result.args._currentRound}, tx ${result.transactionHash}`)
+                    callback(result)
+                }
+            })
         })
     }
 
@@ -320,5 +279,13 @@ export class Logic {
             .fail((jqXHR, textStatus, errorThrown) => {
                 console.log('refuel request fail: ' + textStatus + ' - ' + errorThrown)
             })
+    }
+
+    testCrypto() {
+        this.crypto.encryptionPromise('hallo').then( (cipheredData) => {
+            var cipheredValue = this.crypto.arrayBufferToBase64String(cipheredData);
+            console.log('data: ' + cipheredData)
+            console.log('value: ' + cipheredValue)
+        })
     }
 }

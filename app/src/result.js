@@ -20,31 +20,48 @@ export class Processing {
 
         this.rows = [];
         this.i = 0;
-        //this.fill();
 
         this.listenForVotes()
         this.waitForResult()
 
+        this.nextRoundCountdown()
+
         window.result = this
     }
 
+    nextRoundCountdown() {
+        var dNow = new Date()
+        var dLast = new Date(
+            dNow.getFullYear(),
+            dNow.getMonth(),
+            dNow.getDate(),
+            0,0,0)
 
-    electionStatusObserver() {
-        if(this.logic.electionStatus == 2) {
-            // present result
+        var secondsLeft = 60*60*24 - Math.floor((dNow.getTime() - dLast.getTime()) / 1000)
 
+        // add leading zero if single digit
+        function pad(value) {
+            if(value < 10) {
+                return '0' + value;
+            } else {
+                return value;
+            }
         }
+
+        var tick = () => {
+            let str = `${Math.floor(secondsLeft / 3600)}h ${pad(Math.floor((secondsLeft / 60)) % 60)}m ${pad(secondsLeft % 60)}s`
+            this.nextRoundCountdown = str
+            if(secondsLeft-- > 0)
+                setTimeout(tick, 1000)
+        }
+        tick()
     }
 
-    // TODO: this is fucked up. Current and future results shouldn't require different handing. Needs debug
     waitForResult() {
-        setTimeout( () => { // TODO: this is a massive WTF. canvas context isn't ready when called immediately from ctor.
-            if (this.logic.electionResult) {
-                this.createResultChart(this.logic.electionResult)
-            }
-
-            // react on changes
-            this.logic.getElectionResultPromise().then(() => {
+        // TODO: this is a massive WTF. canvas context isn't ready when called immediately from ctor.
+        // wrapping into $(document).ready() didn't help either
+        setTimeout( () => {
+            this.logic.electionResultPromise.then(() => {
                 this.createResultChart(this.logic.electionResult)
             })
         }, 1000)
@@ -52,10 +69,6 @@ export class Processing {
 
 
     listenForVotes() {
-        // first render cached votes
-        for (const v of this.logic.votes) {
-            this.renderVoteEvent(v)
-        }
         console.log('install vote listener')
         this.logic.watchVotes(this.renderVoteEvent)
     }
@@ -66,12 +79,9 @@ export class Processing {
             blockNr: voteEvent.blockNumber,
             tx: voteEvent.transactionHash,
             myVote: this.logic.myVoteTxHash == voteEvent.transactionHash,
-            nrVotes: voteEvent.args['']
+            nrVotes: voteEvent.args['_nrVotes']
         }
 
-        // let eventStr = `neue Stimme: Block ${event.blockNumber} - Transaktion ${event.transactionHash}`
-        //let eventStr = `neue Stimme | Block <a href="${chainExplorer}/block/${event.blockNumber}">${event.blockNumber}</a> - Transaktion: ${event.transactionHash} - Gesamtstimmen: ${event.args['']}`
-        //this.rows.push( { msg: eventStr } )
         this.rows.push(row)
         this.scrollTop()
     }
@@ -85,27 +95,13 @@ export class Processing {
                 nrVotes: 33
             }
             this.rows.push(row)
-            //let str = 'neue Stimme | Block 194 - Transaktion: 0x538a60fe906c385c8944cdd3ed7398e6f18b418118937395031c5aae3dd2bae2 - Gesamtstimmen: 111'
-            //this.rows.push({msg: str})
         }
     }
 
     scrollTop() {
-        // automatically scroll if scrolled to the bottom. Allows manual override
         let listElem = $('#live-votes')
-        let scrollPercent = (100 - (listElem.height() - listElem.scrollTop()) * 100 / listElem.height())
-        if(scrollPercent > 95)
-            listElem.stop().animate({scrollTop: listElem[0].scrollHeight}, 800)
+        listElem.stop().animate({scrollTop: listElem[0].scrollHeight}, 800)
     }
-
-    /*
-    refresh() {
-        // this.fill()
-        $('.scrollable').stop().animate({
-            scrollTop: $('.scrollable')[0].scrollHeight
-        }, 800);
-    }
-    */
 
     // this assumes a result object of the form {'hofer': <int>,'vdb': <int>}
     createResultChart(result) {
@@ -123,7 +119,7 @@ export class Processing {
             green: 'rgb(0, 128, 0)',
         }
 
-        console.log('hofer' + result['hofer'])
+        console.log('hofer:' + result['hofer'])
         console.log('vdb:' + result['vdb'])
 
         var config = {
@@ -155,6 +151,5 @@ export class Processing {
         }
 
         window.myPie = new Chart(ctx, config);
-
     }
 }

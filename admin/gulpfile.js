@@ -6,7 +6,7 @@
 var gulp = require('gulp')
 var cp = require('child_process')
 
-var contractFile = '../blockchain/contracts/blockvote.sol'
+var contractFile = '../blockchain/contracts/election.sol'
 
 gulp.task('default', ['watch'])
 

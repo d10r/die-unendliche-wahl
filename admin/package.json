@@ -1,8 +1,8 @@
 {
-  "name": "blockvote",
+  "name": "die-unendliche-wahl admin",
   "description": "Blockchain based voting",
-  "authors": "blockvote@d10r.net",
-  "version": "0.0.1",
+  "authors": "_didi@d10r.net",
+  "version": "0.1.0",
   "main": "main.js",
   "dependencies": {
     "async": "^2.1.2",

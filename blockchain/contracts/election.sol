@@ -17,8 +17,9 @@ contract Election {
 
     event error(uint);
     event log(string);
-    event voteEvent(string, uint);
-    event resultPublished(string);
+    event voteEvent(uint indexed _currentRound, string _token, uint _nrVotes);
+    event resultPublishedEvent(uint indexed _currentRound, string _result);
+    event electionStatusEvent(uint indexed _currentRound, uint _status);
 
 // ############## STRUCTS ##############
 
@@ -43,7 +44,8 @@ contract Election {
 
     // name of the election, e.g. "BP 2016"
     string public name;
-    
+
+    uint public currentRound = 1; // incremented for every election round
     Vote[] public votes;
     uint public nrVotes = 0;
 
@@ -88,7 +90,7 @@ contract Election {
             candidate: _candidate
         });
 
-        voteEvent(_token, nrVotes);
+        voteEvent(currentRound, _token, nrVotes);
         return 0;
     }
 
@@ -96,26 +98,30 @@ contract Election {
         return nrVotes;
     }
 
-    function getElectionStatus() returns(uint) {
-        return uint(currentStage);
+    function getCurrentElectionRoundAndStatus() returns(uint round, uint status) {
+        return (currentRound, uint(currentStage));
     }
 
     function stopElection() requiresAdmin voting {
         currentStage = Stage.PROCESSING;
+        electionStatusEvent(currentRound, uint(currentStage));
     }
 
     function publishResult(string _result, string _privateKey) requiresAdmin {
         lastResult = _result;
         privateKey = _privateKey;
 
-        resultPublished(_result);
+        resultPublishedEvent(currentRound, _result);
         currentStage = Stage.RESULT;
+        electionStatusEvent(currentRound, uint(currentStage));
     }
 
     function startNewRound() requiresAdmin {
         currentStage = Stage.VOTING;
         // votes.length = 0; // disabled because it easily runs out of gas
         nrVotes = 0;
+        currentRound++;
+        electionStatusEvent(currentRound, uint(currentStage));
     }
 
 // ############## MODIFIERS ##############

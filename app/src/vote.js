@@ -19,8 +19,15 @@ export class Vote {
             console.log('token: ' + this.appState.token)
         }
 
+        this.setTodayString()
+
         //this.installFundsWaitingPromise()
         window.vote = this
+    }
+
+    setTodayString() {
+        let d = new Date()
+        this.todayString = `${d.getUTCDate()}. ${d.toLocaleString('de-AT', {month: 'long'})} ${d.getFullYear()}`
     }
 
     setVote(candidate) {

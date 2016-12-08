@@ -11,10 +11,11 @@
 admin/generated
 admin/keys/*private*
 admin/config.json
-admin/*.password
 
 app/dist
 app/config/config.json
+app/src/contracts.js
 
 blockchain/testnet-admin
 blockchain/testnet-public
+blockchain/*.password
