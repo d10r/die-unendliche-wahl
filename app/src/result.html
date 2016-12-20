@@ -35,8 +35,9 @@
 
     <div class="container-fluid page-default ${logic.electionResult ? '' : 'hidden'}">
         <div class="row">
-            <h1>Ergebnis der letzten Runde</h1>
-            <div class="col-md-offset-4 col-md-4">
+            <h1>Ergebnis der letzten Runde:</h1>
+            <h2 class="${emptyResult ? '' : 'hidden'}">Kein Ergebnis mangels Wahlbeteiligung :-(</h2>
+            <div class="col-md-offset-4 col-md-4 ${emptyResult ? 'hidden' : ''}">
 
                 <!--<a class="btn btn-primary" click.trigger="createResultChart()">Testen</a>-->
 

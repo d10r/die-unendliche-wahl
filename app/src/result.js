@@ -2,31 +2,36 @@ import {inject} from 'aurelia-framework'
 import {ApplicationState} from 'applicationstate'
 import {Logic} from 'logic'
 import {Configure} from 'aurelia-configuration'
+import {TaskQueue} from 'aurelia-framework';
 import 'chart.js'
 
-@inject(ApplicationState, Logic, Configure)
+@inject(ApplicationState, Logic, Configure, TaskQueue)
 export class Processing {
 
-    constructor(appState, logic, config) {
+    constructor(appState, logic, config, taskQueue) {
         this.appState = appState
         this.logic = logic
         this.config = config
+        this.taskQueue = taskQueue
         this.chainExplorer = this.config.getAll().ethereum.chainExplorer
 
         if (! this.appState.isTokenSet()) {
             console.log('token not set, need auth')
             window.location = "#/authenticate";
+        } else {
+            console.log('after redirect')
+
+            this.rows = [];
+            this.i = 0;
+
+            this.listenForVotes()
+            this.waitForResult()
+            this.emptyResult = false //default. To be overridden if an empty result comes in
+
+            this.nextRoundCountdown()
+
+            window.result = this
         }
-
-        this.rows = [];
-        this.i = 0;
-
-        this.listenForVotes()
-        this.waitForResult()
-
-        this.nextRoundCountdown()
-
-        window.result = this
     }
 
     nextRoundCountdown() {
@@ -58,13 +63,24 @@ export class Processing {
     }
 
     waitForResult() {
-        // TODO: this is a massive WTF. canvas context isn't ready when called immediately from ctor.
-        // wrapping into $(document).ready() didn't help either
-        setTimeout( () => {
-            this.logic.electionResultPromise.then(() => {
-                this.createResultChart(this.logic.electionResult)
-            })
-        }, 1000)
+        this.logic.electionResultPromise.then(() => {
+            this.checkIfResultEmpty()
+            if(! this.emptyResult) {
+                /* Problem: If the result is ready immediately, document.getElementById("chart-area").getContext("2d") will fail
+                 * because not yet ready.
+                 * onload doesn't work here (because it's a SPA). The best wordaround I found was using Aurelia task-queue
+                 * as suggested here: https://github.com/aurelia/templating/issues/192
+                 * */
+                this.taskQueue.queueMicroTask(() => {
+                    this.createResultChart(this.logic.electionResult)
+                })
+            }
+        })
+    }
+
+    checkIfResultEmpty() {
+        if(! (this.logic.electionResult['hofer'] > 0 || this.logic.electionResult['vdb'] > 0))
+            this.emptyResult = true
     }
 
 
@@ -108,10 +124,6 @@ export class Processing {
         console.log('creating chart')
         var ctx = document.getElementById("chart-area").getContext("2d");
 
-        // testing hack
-        if(! result)
-            result = { "hofer":50,"vdb":50 }
-
         window.chartColors = {
             red: 'rgb(255, 99, 132)',
             orange: 'rgb(255, 159, 64)',
@@ -149,7 +161,6 @@ export class Processing {
                 }
             }
         }
-
         window.myPie = new Chart(ctx, config);
     }
 }
