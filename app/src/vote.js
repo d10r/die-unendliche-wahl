@@ -55,7 +55,9 @@ export class Vote {
 
                 this.logic.castVote(cipheredValue)
 
-                window.location = "#/result";
+                this.logic.votedPromise.then( () => {
+                    window.location = "#/result";
+                })
             })
         })
     }

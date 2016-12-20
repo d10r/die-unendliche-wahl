@@ -20,11 +20,19 @@ export class Logic {
         this.contracts = contracts
         this.crypto = crypto
 
+        this.standaloneMode = true // default assumption: we're not running in a web3 aware environment (e.g. Mist)
+
         // eth and account setup are done asap, because the funding request will take some time anyway
         // and may block voting (the voting module waits for a funding promise)
         try {
             this.initEth()
-            this.createAndFundAccount()
+            if(this.standaloneMode) {
+                this.createAndFundAccount()
+            } else {
+                // TODO: refactor away this workaround
+                this.accountFundedPromise = new Promise( (resolve, reject) => { resolve() })
+                this.accountFunded = true
+            }
             this.instantiateContract()
 
             this.watchElectionStatus()
@@ -40,11 +48,17 @@ export class Logic {
     }
 
     initEth() {
-        // getAll() is a workaround to get() currently supporting only 2 levels, see https://github.com/Vheissu/aurelia-configuration/issues/68
-        let rpcAddr = this.config.getAll().ethereum.rpc
+        if (typeof web3 !== 'undefined') {
+            console.log('*** web3 already provided')
+            this.web3 = new Web3(web3.currentProvider);
+            this.standaloneMode = false
+        } else {
+            // getAll() is a workaround to get() currently supporting only 2 levels, see https://github.com/Vheissu/aurelia-configuration/issues/68
+            let rpcAddr = this.config.getAll().ethereum.rpc
 
-        console.log('creating web3')
-        this.web3 = new Web3(new Web3.providers.HttpProvider(rpcAddr))
+            console.log('creating web3')
+            this.web3 = new Web3(new Web3.providers.HttpProvider(rpcAddr))
+        }
 
         this.gasPrice = 20000000000 // init to a reasonable value
         this.web3.eth.getGasPrice( (err, ret) => {
@@ -177,20 +191,6 @@ export class Logic {
         }
     }
 
-    watchEthErrors() {
-        this.errEvent = this.Election.error()
-        this.errEvent.watch( (err, result) => {
-            console.log('#err# err: ' + JSON.stringify(err) + ' - result: ' + JSON.stringify(result))
-        })
-    }
-
-    watchEthLog() {
-        this.logEvent = this.Election.error()
-        this.logEvent.watch( (err, result) => {
-            console.log('#log# err: ' + err + ' - result: ' + result)
-        })
-    }
-
     getRandomToken() {
         var array = new Uint32Array(8)
         window.crypto.getRandomValues(array)
@@ -218,9 +218,54 @@ export class Logic {
 
     txNonce = 0 // needs to be incremented for consecutive transactions
     castVote(encryptedVote) {
-        this.watchEthErrors()
-        this.watchEthLog()
+        this.votedPromise = new Promise( (resolve, reject) => {
+            this.resolveVotedPromise = resolve
+        })
 
+        if(this.standaloneMode) {
+            this.castVoteStandalone(encryptedVote)
+        } else {
+            /*
+            // commented out because the callback for requestAccount never fired in my tests
+            if(typeof mist !== 'undefined') {
+                console.log('asking mist for an account')
+                mist.requestAccount( (e, address) => {
+                    if(e) {
+                        console.error('### mist err: ' + e)
+                        this.rejectVotedPromise()
+                    } else {
+                        console.log('using account provided by mist: ' + address);
+                        this.castVoteManaged(address, encryptedVote)
+                    }
+                });
+            } else */
+            {
+                if(this.web3.eth.defaultAccount != undefined) {
+                    this.castVoteManaged(this.web3.eth.defaultAccount, encryptedVote)
+                } else if(this.web3.eth.accounts.length > 0) {
+                    let address = this.web3.eth.accounts[0]
+                    console.log('using first of ' + this.web3.eth.accounts.length + ' accounts provided: ' + address)
+                    this.castVoteManaged(address, encryptedVote)
+                } else {
+                    alert('no Ethereum account found for executing the voting transaction')
+                }
+            }
+        }
+    }
+
+    castVoteManaged(address, encryptedVote) {
+        this.Election.vote(this.getRandomToken(), encryptedVote, {from: address}, (err, hash) => {
+            if (err) {
+                console.log(err)
+            } else {
+                console.log('castVote done in Tx ' + hash)
+                this.myVoteTxHash = hash
+                this.resolveVotedPromise()
+            }
+        })
+    }
+
+    castVoteStandalone(encryptedVote) {
         //this.Election.vote(this.getRandomToken(), encryptedVote) // that would be too easy :-)
         // we need to manually handle the transaction creation and signing process
         // TODO: Here I'm cheating. This should use the existing token.
@@ -240,11 +285,12 @@ export class Logic {
         tx.sign(pk)
         let serializedTx = tx.serialize()
         this.sentTx = this.web3.eth.sendRawTransaction(serializedTx.toString('hex'), (err, hash) => {
-            if(err) {
+            if (err) {
                 console.log(err)
             } else {
                 console.log('castVote done in Tx ' + hash)
                 this.myVoteTxHash = hash
+                this.resolveVotedPromise()
             }
         })
     }
