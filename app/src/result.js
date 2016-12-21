@@ -2,17 +2,15 @@ import {inject} from 'aurelia-framework'
 import {ApplicationState} from 'applicationstate'
 import {Logic} from 'logic'
 import {Configure} from 'aurelia-configuration'
-import {TaskQueue} from 'aurelia-framework';
 import 'chart.js'
 
-@inject(ApplicationState, Logic, Configure, TaskQueue)
+@inject(ApplicationState, Logic, Configure)
 export class Processing {
 
-    constructor(appState, logic, config, taskQueue) {
+    constructor(appState, logic, config) {
         this.appState = appState
         this.logic = logic
         this.config = config
-        this.taskQueue = taskQueue
         this.chainExplorer = this.config.getAll().ethereum.chainExplorer
 
         if (! this.appState.isTokenSet()) {
@@ -68,12 +66,19 @@ export class Processing {
             if(! this.emptyResult) {
                 /* Problem: If the result is ready immediately, document.getElementById("chart-area").getContext("2d") will fail
                  * because not yet ready.
-                 * onload doesn't work here (because it's a SPA). The best wordaround I found was using Aurelia task-queue
-                 * as suggested here: https://github.com/aurelia/templating/issues/192
-                 * */
-                this.taskQueue.queueMicroTask(() => {
-                    this.createResultChart(this.logic.electionResult)
-                })
+                 * onload doesn't work here (because it's a SPA). I couldn't find any less hacky workaround then just retrying
+                */
+                var insistInCreatingChart = () => {
+                    try {
+                        this.createResultChart(this.logic.electionResult)
+                    } catch(e) {
+                        console.log('creating chart failed. Trying again in 1 sec')
+                        setTimeout( () => {
+                            insistInCreatingChart()
+                        }, 1000)
+                    }
+                }
+                insistInCreatingChart()
             }
         })
     }
