@@ -1,7 +1,7 @@
 # Die unendliche Wahl (the never ending election)
 
 This is a demo application for an online election based on the Ethereum Blockchain.
-It's related to the notorious [Austrian presidential election 2016](https://en.wikipedia.org/wiki/Austrian_presidential_election,_2016   Austrian _Bundespräsidentenwahl 2016_) which suffered of various issues.
+It's related to the notorious [Austrian presidential election 2016](https://en.wikipedia.org/wiki/Austrian_presidential_election,_2016) which suffered of various issues.
 
 This application is first of all a technical pilot for gaining some experience with the Ethereum platform.
 It also contains some thoughts on E-Voting / online voting more in general.
