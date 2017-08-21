@@ -9,10 +9,5 @@ export class Start {
         this.logic = logic
 
         window.start = this // DEBUG
-
-    }
-
-    testCrypto() {
-        this.logic.testCrypto()
     }
 }

@@ -1046,8 +1046,6 @@ function checkBrowserCompatibility() {
         alert("Sorry, die Seite funktioniert in diesem Browser nicht, da nicht alle benötigten Funktionen unterstützt werden.\n\nEs folgt eine Weiterleitung auf einen Beitrag zum Thema E-Voting.\n\nKompatibilitäts-Status: " + mStr);
 
         window.location = "dist/e-voting_schon-wieder.pdf";
-
-        console.error("bla");
     }
 }
 checkBrowserCompatibility();

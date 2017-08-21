@@ -28,4 +28,4 @@ export class Authenticate {
     }
 }
 
-// http://labs.a-trust.at/developer/
+// What should be implemented here instead: http://labs.a-trust.at/developer/

@@ -1,7 +1,7 @@
 // much of this is from http://stackoverflow.com/questions/34814480/how-to-load-a-public-key-in-pem-format-for-encryption
 
 export class Crypto {
-
+    // This is the public key of the election committee. TODO: don't hardcode here
     pubKey = `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtKwVvZBCxI24bfuKg5yU
 g5vY+vm8nhukVdU400w5DjmiolMFrcCyDh2IjEjL23fXO8J5M9SMKA9QOJ9zLKGO
@@ -16,50 +16,11 @@ WwIDAQAB
         if(! crypto.subtle) {
             console.error('Crypto API not supported!')
         } else {
-
             var self = this
             this.importPublicKey(this.pubKey).then((key) => {
                 this.importedPubKey = key
                 console.log('public key imported')
             })
-        }
-    }
-
-    test_crypto() {
-        var private_key_object = null;
-        var public_key_object = null;
-
-        var promise_key = null;
-
-        var crypto = window.crypto || window.msCrypto;
-
-        if (crypto.subtle) {
-            alert("Cryptography API Supported");
-
-            // Parameters:
-            // 1. Asymmetric Encryption algorithm name and its requirements
-            // 2. Boolean indicating extractable. which indicates whether or not the raw keying material may be exported
-            // by the application (http://www.w3.org/TR/WebCryptoAPI/#dfn-CryptoKey-slot-extractable)
-            // 3. Usage of the keys. (http://www.w3.org/TR/WebCryptoAPI/#cryptokey-interface-types)
-            promise_key = crypto.subtle.generateKey({
-                name: "RSA-OAEP",
-                modulusLength: 2048,
-                publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-                hash: {name: "SHA-256"}
-            }, false, ["encrypt", "decrypt"]);
-
-            promise_key.then(function (key) {
-                private_key_object = key.privateKey;
-                public_key_object = key.publicKey;
-            });
-
-            promise_key.catch = function (e) {
-                console.log(e.message);
-            }
-
-        }
-        else {
-            alert("Cryptography API not Supported")
         }
     }
 
@@ -83,7 +44,6 @@ WwIDAQAB
         }
     };
 
-
     arrayBufferToBase64String(arrayBuffer) {
         var byteArray = new Uint8Array(arrayBuffer)
         var byteString = ''
@@ -92,7 +52,6 @@ WwIDAQAB
         }
         return btoa(byteString)
     }
-
 
     base64StringToArrayBuffer(b64str) {
         var byteStr = atob(b64str)
@@ -111,7 +70,6 @@ WwIDAQAB
         }
         return bufView
     }
-
 
     convertPemToBinary(pem) {
         var lines = pem.split('\n')
@@ -139,5 +97,4 @@ WwIDAQAB
             })
         })
     }
-
 }

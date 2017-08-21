@@ -4,6 +4,7 @@ import {Configure} from 'aurelia-configuration'
 import Web3 from 'web3'
 //import Wallet from 'ethereumjs-wallet'
 //import Tx from 'ethereumjs-tx'
+// workaround for my incompetence when it comes to dealing with JS modules
 import 'ethereumjs-wallet-workaround'
 
 // can't figure out how to model this module to get it usable without injection
@@ -325,13 +326,5 @@ export class Logic {
             .fail((jqXHR, textStatus, errorThrown) => {
                 console.log('refuel request fail: ' + textStatus + ' - ' + errorThrown)
             })
-    }
-
-    testCrypto() {
-        this.crypto.encryptionPromise('hallo').then( (cipheredData) => {
-            var cipheredValue = this.crypto.arrayBufferToBase64String(cipheredData);
-            console.log('data: ' + cipheredData)
-            console.log('value: ' + cipheredValue)
-        })
     }
 }

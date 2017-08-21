@@ -19,7 +19,6 @@ import {Crypto} from 'crypto'
 
 @inject(ApplicationState, Logic, Crypto)
 export class Vote {
-
     constructor(appState, logic, crypto) {
         this.appState = appState
         this.logic = logic
@@ -55,5 +54,13 @@ export class Vote {
 
         if(nrFakeVotes > 0)
             castNextVote() // start the loop
+    }
+
+    testCrypto() {
+        this.crypto.encryptionPromise('hallo').then( (cipheredData) => {
+            var cipheredValue = this.crypto.arrayBufferToBase64String(cipheredData);
+            console.log('data: ' + cipheredData)
+            console.log('value: ' + cipheredValue)
+        })
     }
 }

@@ -19,6 +19,7 @@ exports.run = (ctx) => {
                     console.log(err)
                     throw err
                 } else {
+                    // TODO: look at instance.address instead of counting callbacks
                     ctx.contract.instance = contractInstance
                     if (!contractInstance.address) {
                         console.log("TxHash: " + contractInstance.transactionHash)
