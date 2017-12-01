@@ -6,8 +6,6 @@ It's related to the notorious [Austrian presidential election 2016](https://en.w
 This application is first of all a technical pilot for gaining some experience with the Ethereum platform.
 It also contains some thoughts on E-Voting / online voting more in general.
 
-In order to just see it in action, go to http://die-unendliche-wahl.at
-
 In order to take a deeper look or run it yourself, first look into the blockchain directory, then the admin directory, and finally the app directory.
 This code was tested on Ubuntu 14.04. It should be easy to get it running on other Linux distributions and probably also on other Unix OS (e.g. OSX).
 
