@@ -32,7 +32,7 @@ The list elements contain block number and transaction hash, hyperlinked to a Bl
 Once the election closes, the final result is shown in a simple chart.
 Tallying is implemented in an off-chain script to be run by the admin (election committee).
 Encrypted votes are fetched from the Blockchain, decrypted and counted.
-The final result is pushed to the Blockchain (as json string), along with the private key, allowing everybody to verify te result.
+The final result is pushed to the Blockchain (as json string), along with the private key, allowing everybody to verify the result.
 Tallying could also be implemented in a smart contract, but I didn't find a good reason to do so.
 
 ## Why
