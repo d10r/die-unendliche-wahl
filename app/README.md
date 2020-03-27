@@ -11,6 +11,8 @@ npm install
 npm run jspm-install
 ```
 
+Create `config/config.json` (there's an example file in the same directory).
+
 Run in development mode:
 ```
 npm start
