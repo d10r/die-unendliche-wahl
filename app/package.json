@@ -20,6 +20,11 @@
   "engines": {
     "node": ">=4.6.2"
   },
+  "scripts": {
+    "jspm-install": "node_modules/.bin/jspm install",
+    "check-config": "(test -f config/config.json.example && echo \"done\") || echo \"bla\"",
+    "start": "node_modules/.bin/gulp build && (test -f config/config.json && node_modules/.bin/gulp watch) || echo \"ERROR: config/config.json missing! See config/config.json.example   \""
+  },
   "devDependencies": {
     "aurelia-bundler": "^0.4.0",
     "aurelia-protractor-plugin": "^1.0.0",
