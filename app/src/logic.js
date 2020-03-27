@@ -10,6 +10,9 @@ import 'ethereumjs-wallet-workaround'
 // can't figure out how to model this module to get it usable without injection
 import {Contracts} from 'contracts'
 
+// "require" is not available here. How can the same be achieved with "import"?
+//const ElectionAbi = require('Election.abi')
+
 import {Crypto} from 'crypto'
 
 // TODO: test browser compatibility (e.g. crypto api)
