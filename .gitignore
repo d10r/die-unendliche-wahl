@@ -8,13 +8,13 @@
 **/node_modules
 **/jspm_packages
 
-admin/generated
+admin/generated/*
+!admin/generated/compiled_contract.json
 admin/keys/*private*
 admin/config.json
 
 app/dist
 app/config/config.json
-app/src/contracts.js
 
 blockchain/testnet-admin
 blockchain/testnet-public

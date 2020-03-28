@@ -1,8 +1,10 @@
 var process = require('process')
 var Web3 = require('web3')
 var fs = require('fs')
-var keythereum = require("keythereum");
+var keythereum = require("keythereum")
+var assert = require('assert')
 
+assert(fs.existsSync('config.json'), 'config.json missing! See config.json.example')
 const config = require('./config')
 
 var context = {}
@@ -21,7 +23,14 @@ try {
     throw e
 }
 
-context = Object.assign(context, { web3: web3, contract: { abi: null, instance: null }, compiledFile: 'generated/compiled_contract.json', deployedAddressFile: 'generated/deployed_address' } )
+context = Object.assign(context, {
+    web3: web3,
+    contract: { abi: null, instance: null },
+    compiledFile: 'generated/compiled_contract.json',
+    deployedAddressFile: 'generated/deployed_address',
+    config: config
+})
+
 if (!fs.existsSync('generated')){
     fs.mkdirSync('generated');
 }
@@ -29,6 +38,7 @@ if (!fs.existsSync('generated')){
 // ################ execute tasks #################
 
 if(compileTask.enabled) {
+    console.log('WARNING: complication via RPC call may not be implemented anymore and thus fail')
     if(web3.eth.compile.solidity == undefined) {
         console.error('compiler not found. Make sure solc is installed')
         process.exit(2)

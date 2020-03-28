@@ -2,7 +2,7 @@ var fs = require('fs')
 
 exports.run = (ctx) => {
     return new Promise( (resolve) => {
-        var estGas = ctx.web3.eth.estimateGas({data: ctx.contract.code})
+        var estGas = ctx.web3.eth.estimateGas({data: `0x${ctx.contract.code}`})
         console.log('estimated gas needed: ' + estGas)
 
         const adminAcc = ctx.web3.eth.accounts[0]
@@ -13,7 +13,7 @@ exports.run = (ctx) => {
         // constructor params: string _electionName, uint _blockStart, uint _blockEnd
 
         ctx.contract.object.new(ctx.electionName,
-            {data: ctx.contract.code, from: adminAcc, gas: 3000000}, (err, contractInstance) => {
+            {data: `0x${ctx.contract.code}`, from: adminAcc, gas: 3000000, gasPrice: ctx.config.ethereum.gasPrice}, (err, contractInstance) => {
                 // this callback is fired twice according to the doc. After issuing the transaction and after having been mined
                 if (err) {
                     console.log(err)

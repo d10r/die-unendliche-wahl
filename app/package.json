@@ -11,7 +11,7 @@
     "url": "https://github.com/d10r/die-unendliche-wahl"
   },
   "license": "GPL-3.0",
-  "author": "Dietmar Hofer <_didi@d10r.net>",
+  "author": "dev@d10r.net",
   "main": "dist/main.js",
   "repository": {
     "type": "git",
@@ -22,7 +22,7 @@
   },
   "scripts": {
     "jspm-install": "node_modules/.bin/jspm install",
-    "start": "node_modules/.bin/gulp build && (test -f config/config.json && node_modules/.bin/gulp watch) || echo \"ERROR: config/config.json missing! See config/config.json.example   \""
+    "start": "node_modules/.bin/gulp build && (test -f config/config.json && node_modules/.bin/gulp watch) || echo \"ERROR: config/config.json missing! See config/config.json.example\""
   },
   "devDependencies": {
     "aurelia-bundler": "^0.4.0",

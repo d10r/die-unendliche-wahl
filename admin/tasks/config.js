@@ -1,7 +1,10 @@
 var exec = require('child_process').exec
 var fs = require('fs')
+var assert = require('assert')
 
 var privKeyFile = 'keys/private.pem'
+assert(fs.existsSync(privKeyFile), `private key file ${privKeyFile} does not exist`)
+
 exports.run = (ctx) => {
     //  var retHex = ctx.contract.instance.testFunc.call();
     //  console.log(ctx.web3.toDecimal(retHex))
@@ -16,12 +19,12 @@ exports.run = (ctx) => {
     }
 
     if(ctx.startElection) {
-        var ret = ctx.contract.instance.startElection()
+        var ret = ctx.contract.instance.startElection({gas: 200000, gasPrice: ctx.config.ethereum.gasPrice})
         console.log('election started' + ' - ' + ret)
     }
 
     if(ctx.stopElection) {
-        var ret = ctx.contract.instance.stopElection()
+        var ret = ctx.contract.instance.stopElection({gas: 2000000, gasPrice: ctx.config.ethereum.gasPrice})
         console.log('election stopped' + ' - ' + ret)
     }
 
@@ -30,12 +33,12 @@ exports.run = (ctx) => {
     // TODO: check how this relates to the size of vote array and how to fix
     // TODO: make sure the block gas limit isn't exceeded
     if(ctx.startNewRound) {
-        var ret = ctx.contract.instance.startNewRound({gas: 2000000})
+        var ret = ctx.contract.instance.startNewRound({gas: 2000000, gasPrice: ctx.config.ethereum.gasPrice})
         console.log('new round started' + ' - ' + ret)
     }
 
     if(ctx.reset) {
-        var ret = ctx.contract.instance.reset({gas: 2000000})
+        var ret = ctx.contract.instance.reset({gas: 2000000, gasPrice: ctx.config.ethereum.gasPrice})
         console.log('election reset' + ' - ' + ret)
     }
 
@@ -79,7 +82,7 @@ exports.run = (ctx) => {
     function publishResult(result) {
         console.log('publishing...')
         var privKey = fs.readFileSync(privKeyFile).toString()
-        ctx.contract.instance.publishResult(result, privKey, {gas: 2000000}) // quite expensive
+        ctx.contract.instance.publishResult(result, privKey, {gas: 2000000, gasPrice: ctx.config.ethereum.gasPrice}) // quite expensive
         console.log('done')
     }
 
@@ -91,7 +94,7 @@ exports.run = (ctx) => {
 
             var decryptCmd =  `openssl rsautl -decrypt -oaep -inkey ${privKeyFile} -in ${encFilename}`
             exec(decryptCmd, (error, stdout, stderr) => {
-                fs.unlink(encFilename)
+                fs.unlinkSync(encFilename)
                 if(error) {
                     console.error(`exec error: ${error}`)
                     reject()

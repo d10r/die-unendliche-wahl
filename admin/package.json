@@ -1,9 +1,10 @@
 {
-  "name": "die-unendliche-wahl admin",
+  "name": "die-unendliche-wahl.at-admin",
   "description": "Blockchain based voting",
-  "authors": "_didi@d10r.net",
+  "author": "dev@d10r.net",
   "version": "0.1.0",
   "main": "main.js",
+  "scripts": {},
   "dependencies": {
     "async": "^2.1.2",
     "keythereum": "^0.2.6",

@@ -64,14 +64,6 @@ export class Logic {
             this.web3 = new Web3(new Web3.providers.HttpProvider(rpcAddr))
         }
 
-        this.gasPrice = 20000000000 // init to a reasonable value
-        this.web3.eth.getGasPrice( (err, ret) => {
-            if(! err) {
-                this.gasPrice = this.web3.toDecimal(ret)
-                console.log('gasPrice: ' + this.gasPrice)
-            }
-        })
-
         this.wallet = Wallet.generate()
         this.electionResultPromise = new Promise( (resolve, reject) => {
             this.electionResultReady = resolve // will be triggered from outside
@@ -279,7 +271,7 @@ export class Logic {
         let pk = this.wallet.getPrivateKey()
         let rawTx = {
             nonce: '0x' + (this.txNonce++).toString(16), // our first transaction
-            gasPrice: this.web3.toHex(this.gasPrice),
+            gasPrice: this.config.getAll().ethereum.gasPrice,
             gasLimit: this.web3.toHex(1000000),
             to: this.contracts.address,
             value: '0x00',
@@ -288,7 +280,7 @@ export class Logic {
         let tx = new Tx(rawTx)
         tx.sign(pk)
         let serializedTx = tx.serialize()
-        this.sentTx = this.web3.eth.sendRawTransaction(serializedTx.toString('hex'), (err, hash) => {
+        this.sentTx = this.web3.eth.sendRawTransaction(`0x${serializedTx.toString('hex')}`, (err, hash) => {
             if (err) {
                 console.log(err)
             } else {

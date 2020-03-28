@@ -1,6 +1,7 @@
 {
   "ethereum": {
-    "rpc": "http://localhost:2017"
+    "rpc": "http://localhost:8545",
+    "gasPrice": 100000000000
   },
   "gasDistributor": {
     "interface": "::",

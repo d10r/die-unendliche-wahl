@@ -1,7 +1,8 @@
 {
   "ethereum": {
-    "rpc": "//die-unendliche-wahl.at/web3",
-    "chainExplorer": "https://testnet.etherscan.io"
+    "rpc": "https://rpc.tau1.artis.network",
+    "chainExplorer": "https://explorer.tau1.artis.network",
+    "gasPrice": 100000000000
   },
-  "refuelBaseUrl": "//die-unendliche-wahl.at/refuel/addr/"
+  "refuelBaseUrl": "//faucet.tau1.artis.network/ats/"
 }

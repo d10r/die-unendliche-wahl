@@ -20,7 +20,7 @@
                 <div id="live-votes" class="scrollable">
                     <ul class="list-group">
                         <li class="list-group-item" repeat.for="row of rows">
-                            <span class="${row.myVote ? 'my-vote' : ''}">neue Stimme in Block <a href="${row.chainExplorer}/block/${row.blockNr}" target="_blank">${row.blockNr}</a>
+                            <span class="${row.myVote ? 'my-vote' : ''}">neue Stimme in Block <a href="${row.chainExplorer}/blocks/${row.blockNr}" target="_blank">${row.blockNr}</a>
                             - Transaktion <a href="${row.chainExplorer}/tx/${row.tx}" target="_blank">${row.tx}</a>
                             | Stimmen gesamt: ${row.nrVotes}
                             </span>

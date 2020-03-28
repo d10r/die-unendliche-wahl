@@ -75,3 +75,8 @@ More robust protections could be implemented via dedicated hardware and/or very 
 Some forms of online voting may already today be more secure then postal voting.
 Paper ballots are fine for the current applications, but a barrier for new forms of democratic partecipation.
 Recent developments in Cryptography and Blockchain technology make online voting a topic worth keeping an eye on.
+
+## TODO
+
+Instead of using a dedicated random token to prove the voting permission, the Ethereum address which signs the transaction should be used.   
+That would simplify the procedure a bit and also fix the currently open issue that somebody could steal a token from a pending transaction and front-run using it.
