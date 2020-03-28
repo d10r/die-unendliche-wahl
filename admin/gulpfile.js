@@ -1,4 +1,5 @@
 /*
+ * DEPRECATED - won't work with nodes not supporting compilation via RPC call
  * This can be used to automatically trigger compilation and deployment of the contract when modified.
  * Run with "gulp watch". If gulp isn't installed, install it with "npm install -g gulp"
  */
