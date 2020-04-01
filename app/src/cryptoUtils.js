@@ -1,6 +1,6 @@
 // much of this is from http://stackoverflow.com/questions/34814480/how-to-load-a-public-key-in-pem-format-for-encryption
 
-export class Crypto {
+export class CryptoUtils {
     // This is the public key of the election committee. TODO: don't hardcode here
     pubKey = `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtKwVvZBCxI24bfuKg5yU

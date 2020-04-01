@@ -13,16 +13,16 @@ import {Contracts} from 'contracts'
 // "require" is not available here. How can the same be achieved with "import"?
 //const ElectionAbi = require('Election.abi')
 
-import {Crypto} from 'crypto'
+import {CryptoUtils} from 'cryptoUtils'
 
 // TODO: test browser compatibility (e.g. crypto api)
 
-@inject(Configure, Contracts, Crypto)
+@inject(Configure, Contracts, CryptoUtils)
 export class Logic {
-    constructor(config, contracts, crypto) {
+    constructor(config, contracts, cryptoUtils) {
         this.config = config
         this.contracts = contracts
-        this.crypto = crypto
+        this.cryptoUtils = cryptoUtils
 
         // will be set to false if injected web3 (e.g. Metamask) is found during init
         this.standaloneMode = true
@@ -192,11 +192,9 @@ export class Logic {
     }
 
     getRandomToken() {
-        var array = new Uint32Array(8)
+        var array = new Uint8Array(32)
         window.crypto.getRandomValues(array)
-        var token = array.join('')
-        return token
-        // TODO: convert to an alphanumeric string
+        return this.cryptoUtils.arrayBufferToBase64String(array)
     }
 
     getCandidateNameById(id) {
@@ -213,7 +211,7 @@ export class Logic {
     // returns a promise for an encrypted vote
     prepareVote(candidateId) {
         let candidateName = this.getCandidateNameById(candidateId)
-        return this.crypto.encryptionPromise(candidateName)
+        return this.cryptoUtils.encryptionPromise(candidateName)
     }
 
     txNonce = 0 // needs to be incremented for consecutive transactions

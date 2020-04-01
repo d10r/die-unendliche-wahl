@@ -1,16 +1,16 @@
 import {inject} from 'aurelia-framework'
 import {ApplicationState} from 'applicationstate'
 import {Logic} from 'logic'
-import {Crypto} from 'crypto'
+import {CryptoUtils} from 'cryptoUtils'
 
-@inject(ApplicationState, Logic, Crypto)
+@inject(ApplicationState, Logic, CryptoUtils)
 export class Vote {
 
-    constructor(appState, logic, crypto) {
+    constructor(appState, logic, cryptoUtils) {
         this.appState = appState
         this.logic = logic
         this.web3 = logic.web3
-        this.crypto = crypto
+        this.cryptoUtils = cryptoUtils
 
         this.logic.ensureFundedAccount()
 
@@ -51,7 +51,7 @@ export class Vote {
         // TODO: visualize state if waiting for promise
         this.logic.accountFundedPromise.then( () => {
             this.logic.prepareVote(this.candidateId).then( (cipheredData) => {
-                var cipheredValue = this.crypto.arrayBufferToBase64String(cipheredData);
+                var cipheredValue = this.cryptoUtils.arrayBufferToBase64String(cipheredData);
                 console.log('value: ' + cipheredValue)
 
                 this.logic.castVote(cipheredValue)
