@@ -31,10 +31,11 @@
 
         <span class="text-warning ${logic.electionStatus == 1 ? 'hidden' : ''}">Derzeit ist das virtuelle Wahllokal geschlossen.</span>
 
-        <span class="text-warning ${logic.electionStatus == 1 && logic.accountFunded == false ? '' : 'hidden'}">Das zur Stimmabgabe nötige <a href="https://www.ethereum.org/ether" target="_blank">Ether</a> (Crypto-Geld) ist noch nicht eingetroffen.
-          <br>Bitte noch etwas Geduld...<i class="fa fa-spinner fa-spin fa-fw"></i>
-
-<span class="sr-only"></span></span>
+        <span class="text-warning ${logic.electionStatus == 1 && logic.accountFunded == false ? '' : 'hidden'}">
+          Warte auf native tokens für die Begleichung der Transaktionskosten...
+          <i class="fa fa-spinner fa-spin fa-fw"></i>
+          <span class="sr-only"></span>
+        </span>
 
         <a id="btn-vote" class="btn btn-primary ${logic.electionStatus != 1 || ! logic.accountFunded ? 'hidden' : ''}" click.trigger="castVote()"><i class="fa fa-envelope" aria-hidden="true"></i> Stimme abgeben</a>
       </div>

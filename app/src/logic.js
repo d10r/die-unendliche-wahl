@@ -24,24 +24,15 @@ export class Logic {
         this.contracts = contracts
         this.crypto = crypto
 
-        this.standaloneMode = true // default assumption: we're not running in a web3 aware environment (e.g. Mist)
+        // will be set to false if injected web3 (e.g. Metamask) is found during init
+        this.standaloneMode = true
 
-        // eth and account setup are done asap, because the funding request will take some time anyway
-        // and may block voting (the voting module waits for a funding promise)
         try {
             this.initEth()
-            if(this.standaloneMode) {
-                this.createAndFundAccount()
-            } else {
-                // TODO: refactor away this workaround
-                this.accountFundedPromise = new Promise( (resolve, reject) => { resolve() })
-                this.accountFunded = true
-            }
             this.instantiateContract()
-
             this.watchElectionStatus()
         } catch(e) {
-            alert('Etwas ist bei der Initialisierung gehörig schief gegangen, sorry.\nMöglicherweise ist die Blockchain nicht erreichbar.\nDie Applikation wird vermutlich nicht wie vorgesehen funktionieren.')
+            alert('Etwas ist bei der Initialisierung gehörig schief gegangen, sorry.\nDie Applikation wird vermutlich nicht wie vorgesehen funktionieren.')
             console.error(e)
         }
 
@@ -64,13 +55,26 @@ export class Logic {
             this.web3 = new Web3(new Web3.providers.HttpProvider(rpcAddr))
         }
 
-        this.wallet = Wallet.generate()
         this.electionResultPromise = new Promise( (resolve, reject) => {
             this.electionResultReady = resolve // will be triggered from outside
         })
     }
 
+    ensureFundedAccount() {
+        if(this.standaloneMode) {
+            if(this.wallet === undefined) {
+                this.createAndFundAccount()
+            }
+        } else {
+            // TODO: refactor away this workaround
+            this.accountFundedPromise = new Promise( (resolve, reject) => { resolve() })
+            this.accountFunded = true
+            // TODO: check if we really have a funded account connected
+        }
+    }
+
     createAndFundAccount() {
+        this.wallet = Wallet.generate()
         let addr = this.wallet.getAddressString()
         console.log('new addr: ' + addr)
         this.web3.eth.defaultAccount = addr
@@ -221,30 +225,14 @@ export class Logic {
         if(this.standaloneMode) {
             this.castVoteStandalone(encryptedVote)
         } else {
-            /*
-            // commented out because the callback for requestAccount never fired in my tests
-            if(typeof mist !== 'undefined') {
-                console.log('asking mist for an account')
-                mist.requestAccount( (e, address) => {
-                    if(e) {
-                        console.error('### mist err: ' + e)
-                        this.rejectVotedPromise()
-                    } else {
-                        console.log('using account provided by mist: ' + address);
-                        this.castVoteManaged(address, encryptedVote)
-                    }
-                });
-            } else */
-            {
-                if(this.web3.eth.defaultAccount != undefined) {
-                    this.castVoteManaged(this.web3.eth.defaultAccount, encryptedVote)
-                } else if(this.web3.eth.accounts.length > 0) {
-                    let address = this.web3.eth.accounts[0]
-                    console.log('using first of ' + this.web3.eth.accounts.length + ' accounts provided: ' + address)
-                    this.castVoteManaged(address, encryptedVote)
-                } else {
-                    alert('no Ethereum account found for executing the voting transaction')
-                }
+            if(this.web3.eth.defaultAccount != undefined) {
+                this.castVoteManaged(this.web3.eth.defaultAccount, encryptedVote)
+            } else if(this.web3.eth.accounts.length > 0) {
+                let address = this.web3.eth.accounts[0]
+                console.log('using first of ' + this.web3.eth.accounts.length + ' accounts provided: ' + address)
+                this.castVoteManaged(address, encryptedVote)
+            } else {
+                alert('no Ethereum account found for executing the voting transaction')
             }
         }
     }
@@ -303,6 +291,7 @@ export class Logic {
                 if (result) {
                     let resultStr = JSON.stringify(result)
                     console.log(`*** voteEvent: round ${result.args._currentRound}, tx ${result.transactionHash}`)
+                    //console.log(`event detail: ${JSON.stringify(result, null, 2)}`)
                     callback(result)
                 }
             })
@@ -310,7 +299,7 @@ export class Logic {
     }
 
     // requests some funding for the given address, needed in order to be able to send transactions
-    // It may take a while (~20 seconds) for the funds to become available. That delay needs to be handled in UI
+    // It may take a few seconds (depending on the connected chain) for the funds to become available. That delay needs to be handled in UI
     // TODO: persist txhash somewhere, e.g. in appstate?
     // TODO: check if we can switch to fetch api
     fundAccount(address) {

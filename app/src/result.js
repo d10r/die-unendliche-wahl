@@ -5,7 +5,7 @@ import {Configure} from 'aurelia-configuration'
 import 'chart.js'
 
 @inject(ApplicationState, Logic, Configure)
-export class Processing {
+export class Result {
 
     constructor(appState, logic, config) {
         this.appState = appState
@@ -13,23 +13,16 @@ export class Processing {
         this.config = config
         this.chainExplorer = this.config.getAll().ethereum.chainExplorer
 
-        if (! this.appState.isTokenSet()) {
-            console.log('token not set, need auth')
-            window.location = "#/authenticate";
-        } else {
-            console.log('after redirect')
+        this.rows = [];
+        this.i = 0;
 
-            this.rows = [];
-            this.i = 0;
+        this.listenForVotes()
+        this.waitForResult()
+        this.emptyResult = false //default. To be overridden if an empty result comes in
 
-            this.listenForVotes()
-            this.waitForResult()
-            this.emptyResult = false //default. To be overridden if an empty result comes in
+        this.nextRoundCountdown()
 
-            this.nextRoundCountdown()
-
-            window.result = this
-        }
+        window.result = this
     }
 
     nextRoundCountdown() {
@@ -103,8 +96,11 @@ export class Processing {
             nrVotes: voteEvent.args['_nrVotes']
         }
 
-        this.rows.push(row)
-        this.scrollTop()
+        // workaround for duplicate events (not sure why, probably a bug in that old version of web3.js
+        if(this.rows.map(e => e.tx).indexOf(row.tx) < 0) {
+            this.rows.push(row)
+            this.scrollTop()
+        }
     }
 
     testPopulateList(nrItems) {
